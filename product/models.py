@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -17,6 +18,11 @@ class Category(models.TextChoices):
 
 
 class Product(models.Model):
+    # Using unique id to more secure
+    id = models.UUIDField(
+         primary_key = True,
+         default = uuid.uuid4,
+         editable = False)
     name = models.CharField(max_length=200)
     description = models.TextField(default="")
     price = models.DecimalField(max_digits=7,decimal_places=2,default=0)
