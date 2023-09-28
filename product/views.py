@@ -8,13 +8,13 @@ from .serializers import ProductSerializer
 def product_list(request):
     products = Product.objects.all()
     
-    serializer = ProductSerializer(products,many = True )
+    serializer = ProductSerializer(products,many = True, context={'request': request})
     return Response(serializer.data, status =status.HTTP_202_ACCEPTED)
 
 @api_view(['GET'])
 def product_detail(request,uuid):
-    products = get_object_or_404(Product,id=uuid)
+    products = get_object_or_404(Product,uuid=uuid)
     
-    serializer = ProductSerializer(products)
+    serializer = ProductSerializer(products,context={'request': request})
     return Response(serializer.data, status =status.HTTP_202_ACCEPTED)
 
