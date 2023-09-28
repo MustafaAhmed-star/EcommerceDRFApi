@@ -3,12 +3,12 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Product
-from .serializers import ProductSerializer
+from .serializers import ProductSerializer,ProductListSerializer
 @api_view(['GET'])
 def product_list(request):
     products = Product.objects.all()
     
-    serializer = ProductSerializer(products,many = True, context={'request': request})
+    serializer = ProductListSerializer(products,many = True, context={'request': request})
     return Response(serializer.data, status =status.HTTP_202_ACCEPTED)
 
 @api_view(['GET'])
