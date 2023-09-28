@@ -4,17 +4,24 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Product
 from .serializers import ProductSerializer,ProductListSerializer
+from .filters import ProductFilter
+from django.core.paginator import Paginator
+
 @api_view(['GET'])
 def product_list(request):
-    products = Product.objects.all()
+    products = Product.objects.all().order_by('created_at')
+    filterset = ProductFilter(request.GET , queryset=products)
+    paginator = Paginator(filterset.qs, 2)  
     
-    serializer = ProductListSerializer(products,many = True, context={'request': request})
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    
+    serializer = ProductListSerializer(page_obj.object_list ,many = True, context={'request': request})
     return Response(serializer.data, status =status.HTTP_202_ACCEPTED)
 
 @api_view(['GET'])
 def product_detail(request,uuid):
     products = get_object_or_404(Product,uuid=uuid)
-    
-    serializer = ProductSerializer(products,context={'request': request})
+    serializer = ProductSerializer(products )
     return Response(serializer.data, status =status.HTTP_202_ACCEPTED)
 
