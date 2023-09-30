@@ -21,3 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('product.urls')),  # Include the app's URLs here
 ]
+handler404='utils.error_view.handler404'
+handler500='utils.error_view.handler500'
