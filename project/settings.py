@@ -46,7 +46,7 @@ SIMPLE_JWT= {
     'ACCESS_TOKEN_LIFETIME':timedelta(days = 10),
     'REFRESH_TOKEN_LIFETIME':timedelta(days=1),
     'BLACKLIST_AFTER_ROTATION': True,
-    'AUTH_HEADERS_TYPES':('BARRIER',),
+    'AUTH_HEADERS_TYPES':('Bearer',),
     'AUTH_TOKEN_CLASSES':('rest_framework_simplejwt.tokens.AccessToken',),
 }
 
