@@ -31,14 +31,14 @@ def product_detail(request,uuid):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def product_create(request):
-    data = request.data
-    serializer = ProductSerializer(data = data)
+   
+    serializer = ProductSerializer( data = request.data)
 
     if serializer.is_valid():
         #print(request.user)
-        product = Product.objects.create(**data,user=request.user)
-        res = ProductSerializer(product,many=False)
+        serializer.save(user = request.user)
+        #res = ProductSerializer(product,many=False)
  
-        return Response({"product":res.data})
+        return Response({"product":serializer.data})
     else:
         return Response(serializer.errors)
