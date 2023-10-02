@@ -11,7 +11,7 @@ from django.core.paginator import Paginator
 @api_view(['GET'])
 def product_list(request):
     
-    products = Product.objects.all().order_by('created_at')
+    products = Product.objects.all().order_by('-created_at')
     filterset = ProductFilter(request.GET , queryset=products)
     paginator = Paginator(filterset.qs, 2)  
         

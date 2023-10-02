@@ -35,5 +35,8 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User,null=True,on_delete=models.CASCADE)
 
+    class Meta:
+        ordering = ['-created_at']
+
     def __str__(self):
         return self.name
