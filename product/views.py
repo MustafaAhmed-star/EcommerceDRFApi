@@ -23,6 +23,7 @@ def product_list(request):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def product_detail(request,uuid):
     products = get_object_or_404(Product,uuid=uuid)
     serializer = ProductSerializer(products )
@@ -42,3 +43,16 @@ def product_create(request):
         return Response({"product":serializer.data})
     else:
         return Response(serializer.errors)
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])    
+def product_update(request,uuid):
+    products = get_object_or_404(Product,uuid=uuid)
+    serializer = ProductSerializer(products,data=request.data )
+    if products.user!=request.user:
+        return Response({'error':'this product is not your mine'})
+    else:
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status =status.HTTP_202_ACCEPTED)
+        else:
+            return Response(serializer.errors)
