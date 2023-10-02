@@ -11,7 +11,7 @@ from django.core.paginator import Paginator
 @api_view(['GET'])
 def product_list(request):
     
-    products = Product.objects.all().order_by('created_at')
+    products = Product.objects.all().order_by('-created_at')
     filterset = ProductFilter(request.GET , queryset=products)
     paginator = Paginator(filterset.qs, 2)  
         
@@ -23,6 +23,7 @@ def product_list(request):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def product_detail(request,uuid):
     products = get_object_or_404(Product,uuid=uuid)
     serializer = ProductSerializer(products )
@@ -31,14 +32,37 @@ def product_detail(request,uuid):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def product_create(request):
-    data = request.data
-    serializer = ProductSerializer(data = data)
+   
+    serializer = ProductSerializer( data = request.data)
 
     if serializer.is_valid():
         #print(request.user)
-        product = Product.objects.create(**data,user=request.user)
-        res = ProductSerializer(product,many=False)
+        serializer.save(user = request.user)
+        #res = ProductSerializer(product,many=False)
  
-        return Response({"product":res.data})
+        return Response({"product":serializer.data})
     else:
         return Response(serializer.errors)
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])    
+def product_update(request,uuid):
+    products = get_object_or_404(Product,uuid=uuid)
+    serializer = ProductSerializer(products,data=request.data )
+    if products.user!=request.user:
+        return Response({'error':'this product is not your mine'})
+    else:
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status =status.HTTP_202_ACCEPTED)
+        else:
+            return Response(serializer.errors)
+        
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])    
+def product_delete(request,uuid):
+    products = get_object_or_404(Product,uuid=uuid)
+    if products.user!=request.user:
+        return Response({'error':'this product is not your mine'})
+    else:
+        products.delete()
+        return Response("prduct has been deleted",status=status.HTTP_204_NO_CONTENT)
