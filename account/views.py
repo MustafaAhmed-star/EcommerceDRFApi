@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
-from .serializers import SignUpSerializer
+from .serializers import SignUpSerializer,UserSerializer
 
 
 @api_view(['POST'])
@@ -25,3 +25,15 @@ def register(request):
             return Response('This  account is already registered Try another one',status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response(user.errors)
+
+
+@api_view(['PUT'])
+def user_update(request):
+    user = request.user
+    serializer= UserSerializer(user,data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    else:
+        return Response(serializer.errors)
+    
