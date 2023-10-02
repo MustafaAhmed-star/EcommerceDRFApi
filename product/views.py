@@ -56,3 +56,13 @@ def product_update(request,uuid):
             return Response(serializer.data, status =status.HTTP_202_ACCEPTED)
         else:
             return Response(serializer.errors)
+        
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])    
+def product_delete(request,uuid):
+    products = get_object_or_404(Product,uuid=uuid)
+    if products.user!=request.user:
+        return Response({'error':'this product is not your mine'})
+    else:
+        products.delete()
+        return Response("prduct has been deleted",status=status.HTTP_204_NO_CONTENT)
