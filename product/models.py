@@ -53,4 +53,4 @@ class Review(models.Model):
         ordering = ['-created_at','rating']
 
     def __str__(self):
-        return self.product
+        return f' {self.user}-->{self.rating}'

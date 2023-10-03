@@ -98,4 +98,22 @@ def review_create(request,uuid):
         product.ratings = rating['avg_ratings']
         product.save()
         return Response({'details':'Product review created'})
-    
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def review_delete(request,uuid):
+    user = request.user
+    product = get_object_or_404(Product,uuid=uuid)
+   
+    review = product.reviews.filter(user=user)
+   
+ 
+    if review.exists():
+        review.delete()
+        rating = product.reviews.aggregate(avg_ratings = Avg('rating'))
+        if rating['avg_ratings'] is None:
+            rating['avg_ratings'] = 0
+            product.ratings = rating['avg_ratings']
+            product.save()
+            return Response({'details':'Product review deleted'})
+    else:
+        return Response({'error':'Review not found'},status=status.HTTP_404_NOT_FOUND)
