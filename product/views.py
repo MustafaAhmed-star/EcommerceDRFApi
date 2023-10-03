@@ -3,11 +3,11 @@ from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from .models import Product
-from .serializers import ProductSerializer,ProductListSerializer
+from .models import Product ,Review
+from .serializers import ProductSerializer,ProductListSerializer,ReviewSerializer
 from .filters import ProductFilter
 from django.core.paginator import Paginator
-
+from django.db.models import Avg
 @api_view(['GET'])
 def product_list(request):
     
@@ -66,3 +66,36 @@ def product_delete(request,uuid):
     else:
         products.delete()
         return Response("prduct has been deleted",status=status.HTTP_204_NO_CONTENT)
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def review_create(request,uuid):
+    user = request.user
+    product = get_object_or_404(Product,uuid=uuid)
+    data = request.data
+    review = product.reviews.filter(user=user)
+   
+    if data['rating'] <= 0 or data['rating'] > 5:
+        return Response({"error":'Please select between 1 to 5 only'}
+                        ,status=status.HTTP_400_BAD_REQUEST) 
+    elif review.exists():
+        new_review = {'rating':data['rating'], 'body':data['body'] }
+        review.update(**new_review)
+
+        rating = product.reviews.aggregate(avg_ratings = Avg('rating'))
+        product.ratings = rating['avg_ratings']
+        product.save()
+
+        return Response({'details':'Product review updated'})
+    else:
+        Review.objects.create(
+            user=user,
+            product=product,
+            rating= data['rating'],
+            body= data['body']
+        )
+        rating = product.reviews.aggregate(avg_ratings = Avg('rating'))
+        product.ratings = rating['avg_ratings']
+        product.save()
+        return Response({'details':'Product review created'})
+    
