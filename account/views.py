@@ -41,35 +41,30 @@ def user_update(request):
     else:
         return Response(serializer.errors)
 
+def get_current_host(request):
+    protocol = request.is_secure() and 'https' or 'http'
+    host = request.get_host()
+    return "{protocol}://{host}/".format(protocol=protocol, host=host)
 @api_view(['POST'])
 def password_forgot(request):
     data = request.data
-    email = data.get('email')
-
-    if not email:
-        return Response({'error': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    user = get_object_or_404(User, email=email)
-
+    user = get_object_or_404(User,email=data['email'])
     token = get_random_string(40)
     expire_date = datetime.now() + timedelta(minutes=30)
-
-    profile = user.profile
-    profile.reset_password_token = token
-    profile.reset_password_expire = expire_date
-    profile.save()
-
-    reset_link = f"http://localhost:8000/api/password/reset/{token}"
-    body = f"Your password reset link is: {reset_link}"
-
+    user.profile.reset_password_token = token
+    user.profile.reset_password_expire = expire_date
+    user.profile.save()
+    
+    host = get_current_host(request)
+    link = "http://localhost:8000/api/reset_password/{token}".format(token=token)
+    body = "Your password reset link is : {link}".format(link=link)
     send_mail(
-        subject="Password reset from eMarket",
-        message=body,
-        from_email="eMarket@gmail.com",
-        recipient_list=[email]
+        "Paswword reset from eMarket",
+        body,
+        "eMarket@gmail.com",
+        [data['email']]
     )
-
-    return Response({'details': f'Password reset sent to {email}'})
+    return Response({'details': 'Password reset sent to {email}'.format(email=data['email'])})
 @api_view(['POST'])
 def password_reset(request,token):
     data = request.data
