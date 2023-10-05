@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'product',
     'django_filters',
     'rest_framework_simplejwt',#If you wish to use localizations/translations, simply add rest_framework_simplejwt to INSTALLED_APPS.
+    'order',
 ]
 REST_FRAMEWORK = {
      
