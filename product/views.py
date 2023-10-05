@@ -2,7 +2,7 @@ from django.shortcuts import render,get_object_or_404
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from .models import Product ,Review
 from .serializers import ProductSerializer,ProductListSerializer,ReviewSerializer
 from .filters import ProductFilter
@@ -30,7 +30,7 @@ def product_detail(request,uuid):
     return Response(serializer.data, status =status.HTTP_202_ACCEPTED)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated,IsAdminUser])
 def product_create(request):
    
     serializer = ProductSerializer( data = request.data)
@@ -44,7 +44,7 @@ def product_create(request):
     else:
         return Response(serializer.errors)
 @api_view(['PUT'])
-@permission_classes([IsAuthenticated])    
+@permission_classes([IsAuthenticated,IsAdminUser])    
 def product_update(request,uuid):
     products = get_object_or_404(Product,uuid=uuid)
     serializer = ProductSerializer(products,data=request.data )
@@ -58,7 +58,7 @@ def product_update(request,uuid):
             return Response(serializer.errors)
         
 @api_view(['DELETE'])
-@permission_classes([IsAuthenticated])    
+@permission_classes([IsAuthenticated,IsAdminUser])    
 def product_delete(request,uuid):
     products = get_object_or_404(Product,uuid=uuid)
     if products.user!=request.user:
@@ -67,7 +67,7 @@ def product_delete(request,uuid):
         products.delete()
         return Response("prduct has been deleted",status=status.HTTP_204_NO_CONTENT)
     
-@api_view(['POST'])
+@api_view(['POST',IsAdminUser])
 @permission_classes([IsAuthenticated])
 def review_create(request,uuid):
     user = request.user
