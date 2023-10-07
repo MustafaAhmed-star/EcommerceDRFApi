@@ -67,8 +67,8 @@ def product_delete(request,uuid):
         products.delete()
         return Response("prduct has been deleted",status=status.HTTP_204_NO_CONTENT)
     
-@api_view(['POST',IsAdminUser])
-@permission_classes([IsAuthenticated])
+@api_view(['POST'])
+@permission_classes([IsAuthenticated,IsAdminUser])
 def review_create(request,uuid):
     user = request.user
     product = get_object_or_404(Product,uuid=uuid)

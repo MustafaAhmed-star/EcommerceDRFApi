@@ -20,15 +20,22 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-
+from django.conf.urls.i18n import i18n_patterns
+from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
  
-urlpatterns = [
+admin.site.index_title = _('My Index Title')
+admin.site.site_header = _('My Site Administration')
+admin.site.site_title = _('My Site Management')
+ 
+ 
+urlpatterns = i18n_patterns(
     path('admin/', admin.site.urls),
     path('api/', include('product.urls')),
     path('api/', include('account.urls')),  # Include the app's URLs here
     path('api/', include('order.urls')),  
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-]
+)
 handler404='utils.error_view.handler404'
 handler500='utils.error_view.handler500'
